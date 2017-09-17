@@ -28,13 +28,22 @@ export default class App extends React.Component {
     const { email, password } = this.state;
 
     firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(() => this.setState({ authenticating: false }))
+      .then(user => this.setState({
+        authenticating: false,
+        user,
+      }))
       .catch(() => {
         // Login was not successful
         firebase.auth().createUserWithEmailAndPassword(email, password)
-          .then(() => this.setState({ authenticating: false }))
-          .catch(() => this.setState({ authenticating: false }))
-      });
+          .then(user => this.setState({
+            authenticating: false,
+            user,
+          }))
+          .catch(() => this.setState({
+            authenticating: false,
+            user: null,
+          }))
+      })
   }
 
   renderCurrentState() {
@@ -42,6 +51,15 @@ export default class App extends React.Component {
       return (
         <View style={styles.form}>
           <ActivityIndicator size='large' />
+        </View>
+      )
+    }
+
+    if (this.state.user !== null) {
+      return (
+        <View style={styles.form}>
+          <Text>Logged In</Text>
+          <Button onPress={() => console.log('pressed logout')}>Log Out</Button>
         </View>
       )
     }

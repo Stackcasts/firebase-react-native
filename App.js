@@ -9,6 +9,8 @@ export default class App extends React.Component {
     email: '',
     password: '',
     authenticating: false,
+    user: null,
+    error: '',
   }
 
   componentWillMount() {
@@ -31,6 +33,7 @@ export default class App extends React.Component {
       .then(user => this.setState({
         authenticating: false,
         user,
+        error: '',
       }))
       .catch(() => {
         // Login was not successful
@@ -38,12 +41,28 @@ export default class App extends React.Component {
           .then(user => this.setState({
             authenticating: false,
             user,
+            error: '',
           }))
           .catch(() => this.setState({
             authenticating: false,
             user: null,
+            error: 'Authentication Failure',
           }))
       })
+  }
+
+  onPressLogOut() {
+    firebase.auth().signOut()
+      .then(() => {
+        this.setState({
+          email: '',
+          password: '',
+          authenticating: false,
+          user: null,
+        })
+      }, error => {
+        console.error('Sign Out Error', error);
+      });
   }
 
   renderCurrentState() {
@@ -59,7 +78,7 @@ export default class App extends React.Component {
       return (
         <View style={styles.form}>
           <Text>Logged In</Text>
-          <Button onPress={() => console.log('pressed logout')}>Log Out</Button>
+          <Button onPress={() => this.onPressLogOut()}>Log Out</Button>
         </View>
       )
     }
@@ -80,6 +99,7 @@ export default class App extends React.Component {
           value={this.state.password}
         />
         <Button onPress={() => this.onPressSignIn()}>Log In</Button>
+        <Text>{this.state.error}</Text>
       </View>
     )
 

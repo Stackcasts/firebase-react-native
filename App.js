@@ -24,6 +24,17 @@ export default class App extends React.Component {
     this.setState({
       authenticating: true,
     });
+
+    const { email, password } = this.state;
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(() => this.setState({ authenticating: false }))
+      .catch(() => {
+        // Login was not successful
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+          .then(() => this.setState({ authenticating: false }))
+          .catch(() => this.setState({ authenticating: false }))
+      });
   }
 
   renderCurrentState() {
